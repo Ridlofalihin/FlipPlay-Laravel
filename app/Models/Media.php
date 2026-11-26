@@ -16,6 +16,7 @@ class Media extends Model
         'release_year',
     ];
 
+    //Relasi
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)

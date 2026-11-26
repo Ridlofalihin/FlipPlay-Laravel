@@ -3,73 +3,66 @@
 namespace App\Http\Controllers;
 
 use App\Models\Media;
-use Illuminate\Http\Request;
 
+use App\Http\Requests\StoreMediaRequest;
+use App\Http\Requests\UpdateMediaRequest;
+use App\Http\Resources\MediaResource;
+//CRUD
 class MediaController extends Controller
 {
     // Menampilkan semua media
     public function index()
     {
-        return response()->json([
-            'success' => true,
-            'data' => Media::latest()->get()
-        ]);
+        //eager loading
+        $media = Media::with('users')->get();
+
+        //API Resource
+        return MediaResource::collection($media)
+            ->additional([
+                'success' => true
+            ]);
     }
 
     // Menambahkan media baru
-    public function store(Request $request)
+    public function store(StoreMediaRequest $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'type' => 'required|in:anime,manga,drama,novel',
-            'genre' => 'nullable|string',
-            'synopsis' => 'nullable|string',
-            'cover_url' => 'nullable|url',
-            'release_year' => 'nullable|integer|min:1900|max:2100',
-        ]);
+        $media = Media::create($request->validated());
 
-        $media = Media::create($validated);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Media berhasil ditambahkan',
-            'data' => $media
-        ], 201);
+        //API Resource
+        return (new MediaResource($media))
+            ->additional([
+                'success' => true,
+                'message' => 'Media berhasil ditambahkan'
+            ])
+            ->response()
+            ->setStatusCode(201);
     }
 
     // Menampilkan satu media
     public function show(string $id)
     {
-        $media = Media::with('users:id,name')
-            ->findOrFail($id);
+        $media = Media::with('users')->findOrFail($id);
 
-        return response()->json([
-            'success' => true,
-            'data' => $media
-        ]);
+        //API Resource
+        return (new MediaResource($media))
+            ->additional([
+                'success' => true
+            ]);
     }
 
     // Mengubah media
-    public function update(Request $request, string $id)
+    public function update(UpdateMediaRequest $request, string $id)
     {
         $media = Media::findOrFail($id);
 
-        $validated = $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'type' => 'sometimes|required|in:anime,manga,drama,novel',
-            'genre' => 'nullable|string',
-            'synopsis' => 'nullable|string',
-            'cover_url' => 'nullable|url',
-            'release_year' => 'nullable|integer|min:1900|max:2100',
-        ]);
+        $media->update($request->validated());
 
-        $media->update($validated);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Media berhasil diperbarui',
-            'data' => $media
-        ]);
+        //API Resource
+        return (new MediaResource($media))
+            ->additional([
+                'success' => true,
+                'message' => 'Media berhasil diperbarui'
+            ]);
     }
 
     // Menghapus media

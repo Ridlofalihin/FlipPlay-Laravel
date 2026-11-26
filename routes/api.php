@@ -21,7 +21,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // Menambahkan media ke koleksi
+    // Menambahkan media ke koleksi (Attach)
     Route::post('/media/{id}/collection', function (Request $request, $id) {
         $media = Media::findOrFail($id);
 
@@ -41,7 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
         ]);
     });
 
-    // Menghapus media dari koleksi
+    // Menghapus media dari koleksi (Detach)
     Route::delete('/media/{id}/collection', function (Request $request, $id) {
         $media = Media::findOrFail($id);
 

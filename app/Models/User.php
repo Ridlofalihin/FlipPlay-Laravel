@@ -11,6 +11,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
+    //Migration
     public function media(): BelongsToMany
     {
         return $this->belongsToMany(Media::class)
